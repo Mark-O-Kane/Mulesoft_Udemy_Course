@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="ExerciseFlow" doc:id="e6ed66da-0763-4ec2-92d7-91cd610b8956" >
+		<http:listener doc:name="GET Listener" doc:id="a8fc5c84-fb49-463f-92ab-e2c85d870e16" config-ref="HTTP_Listener_config" path="/exercise" allowedMethods="GET"/>
+		<logger level="INFO" doc:name="Log Begin" doc:id="9e83341b-965e-4e87-99c2-610c5614e0f1" message='#["Begin Logging of: " ++ flow.name]'/>
+		<flow-ref doc:name="GET Variables" doc:id="6f6d2dac-b31e-4790-83d3-194dfd013b0c" name="SET_Variables"/>
+	</flow>
+	<flow name="GET_ID" doc:id="5810095f-e0b6-4901-8faf-7651620ccfda" >
+		<http:listener doc:name="Listener" doc:id="c19f8d3a-bff2-4737-8450-b9f91c321684" config-ref="HTTP_Listener_config" path="/exercise/{ID}" allowedMethods="GET"/>
+		<logger level="INFO" doc:name="Log Begin" doc:id="060661f6-9c53-4f4a-89bf-83b31576fc18" message="Beginning logging information from the GET_ID flow"/>
+		<flow-ref doc:name="GET Variables" doc:id="c81da966-0125-4b03-8262-e60c77a21bff" name="SET_Variables"/>
+	</flow>
+	<flow name="SET_Variables" doc:id="70289315-f816-46c8-b78e-20b36e817b17" >
+		<set-variable value="#[attributes.queryParams]" doc:name="Set Query Parameters" doc:id="4d082ed7-2b30-4e9c-9510-3aeee0eab988" variableName="queryParams"/>
+		<set-variable value="#[attributes.uriParams]" doc:name="Set URI Parameters" doc:id="df8e0330-3a02-4b70-8c62-ba09a8f894d7" variableName="uriParams"/>
+		<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+		"uriParameters": vars.uriParams,
+		"queryParameters": vars.queryParams
+}]' doc:name="Set Payload" doc:id="20f8418b-909b-4bb7-b3e1-eea9772ce123" />
+	</flow>
+</mule>
