@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="Exercise1" doc:id="bd94e067-5c3e-46cf-9254-39688f839180" >
+		<ee:transform doc:name="Transform Message" doc:id="5b595013-fa72-43ed-86a7-5f667f8ac057" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var itemsList = 
+	"items":{
+		"item":{
+			"description": "Product1",
+			"quantity": 1,
+			"unit_price": 20,
+			"toDiscount": "No"
+		},
+		"item":{
+			"description": "Product2",
+			"quantity": 2,
+			"unit_price": 30,
+			"toDiscount": "Yes"
+		},
+		"item":{
+			"description": "Product3",
+			"quantity": 3,
+			"unit_price": 40,
+			"toDiscount": "Yes"
+		}
+	}
+var sum_prices_cost = [17, 10, 20, 5, 10]
+var tot = sum(sum_prices_cost)
+---
+"Products": itemsList.items.*item map ((item) ->
+	using (item_price = item.quantity * item.unit_price)
+	if (item_price < tot)
+	(
+		item.description
+	)
+	else ""
+)
+
+
+/* Same result with the code below. Think mines is more readable
+ * using (sum_prices_cost = [17, 10, 20, 5, 10] reduce ((element, accumulated) -> accumulated + element))
+{
+	"products": itemsList.items.*item default [] map ((currItem)->
+		using (item_total_price = currItem.quantity * currItem.unit_price)
+		if (item_total_price < sum_prices_cost) (currItem.description) else ""
+	)
+}
+ */
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="Exercise2" doc:id="1e4d5e16-1b16-4c95-b7c2-e5089acb8421" >
+		<ee:transform doc:name="Transform Message" doc:id="13a91b72-097d-4858-8297-27374d4a3564" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var itemsList = 
+	"items":{
+		"item":{
+			"description": "Product1",
+			"quantity": 1,
+			"unit_price": 20,
+			"toDiscount": "No"
+		},
+		"item":{
+			"description": "Product2",
+			"quantity": 2,
+			"unit_price": 30,
+			"toDiscount": "Yes"
+		},
+		"item":{
+			"description": "Product3",
+			"quantity": 3,
+			"unit_price": 40,
+			"toDiscount": "Yes"
+		}
+	}
+	
+var tax = 0.23
+var discount = 0.10
+
+---
+"invoice":
+	{
+		"items": itemsList.items.*item map ((item) ->
+			using (item_price = item.quantity * item.unit_price)
+			{
+				"item": item.description,
+				"quantity": item.quantity,
+				"unit_price": item.unit_price,
+				"discount": if(item.toDiscount == "Yes") (discount) else 0.00,
+				"cost": if(item.toDiscount == "Yes") (item_price - (item_price * discount)) else (item_price)
+			}
+		),
+		"total": using (sum_items_price = itemsList.items.item.*unit_price default [] reduce ( (element, accumulated = 0) -> accumulated + element) )
+		{
+			"total_cost_before_taxation": sum_items_price,
+			"taxation": tax*100 ++ "%",
+			"total_cost_after_taxation": sum_items_price * (1 + tax) as Number
+		}
+	}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
