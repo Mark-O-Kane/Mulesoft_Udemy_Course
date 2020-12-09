@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+	<flow name="vm_assignmentFlow" doc:id="da7107bb-0c47-4716-a800-1b67cbd2524a" >
+		<http:listener doc:name="Listener" doc:id="ef08dfa0-21c9-44d6-964d-8b8480dff573" config-ref="HTTP_Listener_config" path="${http.path}" allowedMethods="GET"/>
+		<logger level="INFO" doc:name="Log Start" doc:id="38b2f995-a595-4c40-8219-dfbe97d8295a" message='"Starting...."'/>
+		<vm:publish doc:name="Publish" doc:id="de03f49a-fefc-41f2-a1db-b38c9739bf62" config-ref="VM_Config" queueName="queue.A"/>
+		<logger level="INFO" doc:name="Log End" doc:id="f9dd7574-6132-4fb6-b468-2b673b1efb82" message='"Ending"'/>
+	</flow>
+	<flow name="vm_assignmentFlow1" doc:id="142611d5-d567-4e65-aa20-d9623ab65679" >
+		<vm:listener queueName="queue.A" doc:name="Listener" doc:id="c994fbd8-75c0-416d-92e7-22606655d475" config-ref="VM_Config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="7f268403-5eb0-4817-a9f3-c73f378e42be" message='#[Mule::p("environment")]'/>
+	</flow>
+</mule>
