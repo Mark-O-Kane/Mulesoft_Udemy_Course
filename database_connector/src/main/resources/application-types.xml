@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="customers" format="json">
+      <types:shape format="weave" example="customerExample.json"><![CDATA[%dw 2.0
+
+type customers = {|
+  customer: {|
+    customerID: String, 
+    customerName: String
+  |}
+|} {"example": "{\\\"customer\\\":{\\\"customerID\\\":\\\"6\\\",\\\"customerName\\\":\\\"Kirsty\\\"}}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#11e4e21e-0b58-48ff-99d1-f78ba6cf1740">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="customers"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#a468c753-431b-4b82-8e74-501d0e66bb25">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="customers"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#3a6af958-9c7a-49aa-b633-f5609d64576d">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="customers"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
