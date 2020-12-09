@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="properties_assignmentFlow" doc:id="9b666886-e670-4748-93fd-56d0a159356c" >
+		<http:listener doc:name="HTTP POST" doc:id="b13bf785-e031-465e-aebc-3e21fe7eb5bb" config-ref="HTTP_Listener_config" path="/env" allowedMethods="POST"/>
+		<logger level="INFO" doc:name="Logger" doc:id="f97a3dd6-84cd-4566-8659-39461ce528a8" message='#[payload]'/>
+		<set-variable value='#[lower(Mule::p("myMessage"))]' doc:name="Set Variable" doc:id="12ac88e8-a02c-414b-be79-4cb3e5473b25" variableName="wordToFind"/>
+		<set-payload value='#[%dw 2.0
+
+output application/json
+var message = lower(Mule::p("myMessage"))
+---
+{
+	"exist": if (payload.list.*word[?(lower($) contains vars.wordToFind)]?) ("Yes") else ("No")
+}]' doc:name="Check if exists" doc:id="bdb3a24a-7a9b-4a04-9a70-e238cea18494" />
+	</flow>
+</mule>

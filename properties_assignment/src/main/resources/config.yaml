@@ -1,0 +1,6 @@
+http:
+  host: "localhost"
+  port: "8081"
+  path: "/test1"
+  
+message: "Came from the config YAML file"
