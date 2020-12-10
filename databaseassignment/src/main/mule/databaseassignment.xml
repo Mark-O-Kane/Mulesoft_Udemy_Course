@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="Get_All_Songs" doc:id="43a9696c-a613-4017-b3a5-a16782179e19" >
+		<http:listener doc:name="HTTP GET" doc:id="0ea6f73e-7912-427b-b79f-538cfdee6c5e" allowedMethods="GET" config-ref="HTTP_Listener_config" path="/songs"/>
+		<db:select doc:name="Select" doc:id="706c0845-3532-414b-8490-2f87fc93bc4c" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT
+	*
+FROM
+	musics]]></db:sql>
+		</db:select>
+		<logger level="INFO" doc:name="Logger" doc:id="39d4a1a1-bef8-485b-bb20-b25aa058d2d2" message="#[%dw 2.0
+
+output application/json
+---
+payload]"/>
+		<set-payload value='#[%dw 2.0
+
+output application/json
+---
+{
+	"Results": payload
+}]' doc:name="Set Payload" doc:id="f8a1f613-b3f7-4c72-a541-6b8955a65185" />
+	</flow>
+	<flow name="Insert_New_Song" doc:id="031aea82-c548-4f51-9bba-335d4d743f8b" >
+		<http:listener doc:name="HTTP POST" doc:id="8b64b51c-2d72-4d73-a6a6-e036a680cc01" config-ref="HTTP_Listener_config" allowedMethods="POST" path="/songs"/>
+		<db:insert doc:name="Insert New Song" doc:id="8096b124-56f7-4621-9908-9bdf1a1adc8a" config-ref="Database_Config">
+			<db:sql><![CDATA[INSERT INTO musics (songName) VALUES (:songName)]]></db:sql>
+			<db:input-parameters ><![CDATA[#['songName': payload.song.songName]]]></db:input-parameters>
+		</db:insert>
+		<logger level="INFO" doc:name="Logger" doc:id="8064d129-3566-45fb-8ad1-45a1504a093a" message="#[%dw 2.0
+
+output application/json
+---
+payload]"/>
+		<choice doc:name="Validate Insert" doc:id="11107538-2fe3-488f-be29-b4be14d23233" >
+			<when expression="#[payload.affectedRows &gt; 0]">
+				<set-payload value='#[%dw 2.0
+
+output application/json
+---
+{
+	"Success": payload
+}]' doc:name="Success" doc:id="0524b631-50c7-4d0f-9e7b-74e4565d5d18" />
+			</when>
+			<otherwise >
+				<set-payload value='#[%dw 2.0
+
+output application/json
+---
+{
+	"Failed": payload
+}]' doc:name="Failed" doc:id="cc86de13-ca7a-4ffe-8957-650a2e673a16" />
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="songInsert" format="json">
+      <types:shape format="weave" example="songExample.json"><![CDATA[%dw 2.0
+
+type songInsert = {|
+  song: {|
+    songID: String, 
+    songName: String
+  |}
+|} {"example": "{\\\"song\\\":{\\\"songID\\\":\\\"6\\\",\\\"songName\\\":\\\"Kirsty\\\"}}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#8096b124-56f7-4621-9908-9bdf1a1adc8a">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="songInsert"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
