@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<flow name="Get_Countries" doc:id="7a588f13-94d2-4bc0-a11a-a942ae0e6d5e" >
+		<http:listener doc:name="HTTP GET" doc:id="0688cf2b-591b-4594-b579-015b1bc51566" config-ref="HTTP_Listener_config" path="/countries" allowedMethods="GET"/>
+		<db:select doc:name="Select Countries" doc:id="dc00ca79-ffb6-4362-bbfa-cfdecee6a9e0" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT
+	*
+FROM
+	countries]]></db:sql>
+		</db:select>
+		<logger level="INFO" doc:name="Logger" doc:id="406ae713-fd91-4ade-8697-0874db3a6bc9" message="#[%dw 2.0
+
+output application/json
+---
+payload]"/>
+		<set-payload value='#[%dw 2.0
+
+output application/json
+---
+{
+	"Results": payload
+}]' doc:name="Set Payload" doc:id="992e074e-a2d5-4e0b-a604-ed66a1ec0f56" />
+	</flow>
+	<flow name="insert_Country" doc:id="0b44df2e-4eca-4cb3-897b-315fb7a6f37f" >
+		<http:listener doc:name="HTTP POST" doc:id="a79f3b2f-710d-428e-aafa-94962ab2a17e" config-ref="HTTP_Listener_config" path="/countries" allowedMethods="POST"/>
+		<set-variable value="#[%dw 2.0
+
+output application/json
+---
+payload.country]" doc:name="Values" doc:id="0e99ca93-4d8f-47ac-a79a-1c6c89139877" variableName="values"/>
+		<db:insert doc:name="Insert" doc:id="98c910f1-ee6a-488a-819b-3340dc6808ef" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO countries (Name) VALUES (:countryName)]]></db:sql>
+			<db:input-parameters ><![CDATA[#['countryName': payload.country.countryName]]]></db:input-parameters>
+		</db:insert>
+		<logger level="INFO" doc:name="Logger" doc:id="0bc93aff-cd7a-4e84-8d72-0ed8410d19be" message="#[%dw 2.0
+
+output application/json
+---
+payload]"/>
+		<choice doc:name="Choice" doc:id="3c2dd146-bd21-485d-9a63-56dbdd2f6d53" >
+			<when expression="#[payload.affectedRows &gt; 0]">
+				<file:write doc:name="Write" doc:id="1b539dda-2b40-434b-92b4-976a8954538e" config-ref="File_Config" path='#["write/inserted.csv"]' mode="APPEND">
+					<file:content ><![CDATA[#[%dw 2.0
+
+output application/csv header = false
+---
+vars.values]]]></file:content>
+				</file:write>
+				<set-payload value='#["Inserted Successfully."]' doc:name="Success" doc:id="257703ee-59e3-4dca-b7c4-015fd9f87e2b" />
+			</when>
+			<otherwise >
+				<set-payload value='#["Unable to insert record"]' doc:name="Failure" doc:id="afa3ac60-2f11-41d3-b744-31d5f98e5e49" />
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

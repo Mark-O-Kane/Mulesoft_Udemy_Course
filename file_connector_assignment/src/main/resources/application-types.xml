@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="countryExample" format="json">
+      <types:shape format="weave" example="countryExample.json"><![CDATA[%dw 2.0
+
+type countryExample = {|
+  country: {|
+    countryID: String, 
+    countryName: String
+  |}
+|} {"example": "{\\\"country\\\":{\\\"countryID\\\":\\\"6\\\",\\\"countryName\\\":\\\"Germany\\\"}}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#98c910f1-ee6a-488a-819b-3340dc6808ef">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="countryExample"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#1b539dda-2b40-434b-92b4-976a8954538e">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="countryExample"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#0e99ca93-4d8f-47ac-a79a-1c6c89139877">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="countryExample"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
