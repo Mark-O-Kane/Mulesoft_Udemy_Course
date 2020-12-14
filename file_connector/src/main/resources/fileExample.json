@@ -1,0 +1,8 @@
+{
+    "fileName": "TestFile",
+    "customer":
+    {
+        "customerID": "5",
+        "customerName": "Sheldon"
+    }
+}
